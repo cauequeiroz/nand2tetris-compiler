@@ -132,4 +132,4 @@ out
 *.cmp
 *.tst
 
-examples/sandbox
+*_New.xml
