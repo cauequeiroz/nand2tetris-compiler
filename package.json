@@ -1,7 +1,7 @@
 {
   "name": "@cauequeiroz/nand2tetris-compiler",
   "version": "1.0.0",
-  "description": "Compiler written in Typescript for Nand2Tetris Hack Computer.",
+  "description": "Compiler written in Typescript for Nand2Tetris Jack Language.",
   "main": "dist/index.js",
   "bin": {
     "nand2tetris-compiler": "./dist/index.js"
