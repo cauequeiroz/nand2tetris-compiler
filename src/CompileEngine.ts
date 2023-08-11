@@ -46,8 +46,7 @@ export default class CompileEngine {
   }
 
   private compileClass(): void {
-    this.xmlWriter.print('<class>');
-    this.xmlWriter.indent();
+    this.xmlWriter.openTag('class');
 
     this.process('class');
     this.processIdentifier();
@@ -57,14 +56,12 @@ export default class CompileEngine {
 
     this.compileSubroutineDec();
 
-    this.xmlWriter.outdent();
-    this.xmlWriter.print('</class>')
+    this.xmlWriter.closeTag('class');
   }
 
   private compileClassVarDec(): void {
     while(['static', 'field'].includes(this.tokenizer.getCurrentToken().value)) {
-      this.xmlWriter.print('<classVarDec>');
-      this.xmlWriter.indent();
+      this.xmlWriter.openTag('classVarDec');
 
       this.process(['static', 'field']);
       this.processType();
@@ -77,15 +74,13 @@ export default class CompileEngine {
       
       this.process(';');
 
-      this.xmlWriter.outdent();
-      this.xmlWriter.print('</classVarDec>');
+      this.xmlWriter.closeTag('classVarDec');
     }
   }
 
   private compileSubroutineDec(): void {
     while(['constructor', 'function', 'method'].includes(this.tokenizer.getCurrentToken().value)) {
-      this.xmlWriter.print('<subroutineDec>');
-      this.xmlWriter.indent();
+      this.xmlWriter.openTag('subroutineDec');
 
       this.process(['constructor', 'function', 'method']);
 
@@ -101,26 +96,22 @@ export default class CompileEngine {
       this.process(')');
       this.compileSubroutineBody();
 
-      this.xmlWriter.outdent();
-      this.xmlWriter.print('</subroutineDec>');
+      this.xmlWriter.closeTag('subroutineDec');
     }
   }
 
   private compileSubroutineBody(): void {
-    this.xmlWriter.print('<subroutineBody>');
-    this.xmlWriter.indent();
+    this.xmlWriter.openTag('subroutineBody');
 
     this.process('{');
     this.compileVarDec();
-    // Continue: this.compileStatements();
+    this.compileStatements();
 
-    this.xmlWriter.outdent();
-    this.xmlWriter.print('</subroutineBody>');
+    this.xmlWriter.closeTag('subroutineBody');
   }
 
   private compileParameterList(): void {
-    this.xmlWriter.print('<parameterList>');
-    this.xmlWriter.indent();
+    this.xmlWriter.openTag('parameterList');
 
     while(this.tokenizer.getCurrentToken().value !== ')') {
       this.processType();
@@ -133,14 +124,12 @@ export default class CompileEngine {
       }
     }
 
-    this.xmlWriter.outdent();
-    this.xmlWriter.print('</parameterList>');
+    this.xmlWriter.closeTag('parameterList');
   }
 
   private compileVarDec(): void {
     while(this.tokenizer.getCurrentToken().value === 'var') {
-      this.xmlWriter.print('<varDec>');
-      this.xmlWriter.indent();
+      this.xmlWriter.openTag('varDec');
 
       this.process('var');
       this.processType();
@@ -153,8 +142,11 @@ export default class CompileEngine {
 
       this.process(';');
 
-      this.xmlWriter.outdent();
-      this.xmlWriter.print('</varDec>');
+      this.xmlWriter.closeTag('varDec');
     }
+  }
+
+  private compileStatements(): void {
+
   }
 }

@@ -13,16 +13,18 @@ export default class XMLWriter {
     ); 
   }
 
-  public indent(): void  {
-    this.indentationLevel += 1;
-  }
-
-  public outdent(): void {
-    this.indentationLevel -= 1;
-  }
-
   public print(text: string): void {
     this.outputFile.write(`${"  ".repeat(this.indentationLevel)}${text}\n`);
+  }
+
+  public openTag(tagName: string): void {
+    this.print(`<${tagName}>`);
+    this.indent();
+  }
+
+  public closeTag(tagName: string): void {
+    this.outdent();
+    this.print(`</${tagName}>`);
   }
 
   public printToken(token: Token): void {
@@ -42,5 +44,13 @@ export default class XMLWriter {
     const tagContent = tagContentMap[token.value] || token.value;
 
     this.print(`<${tagName}> ${tagContent} </${tagName}>`);
+  }
+
+  private indent(): void  {
+    this.indentationLevel += 1;
+  }
+
+  private outdent(): void {
+    this.indentationLevel -= 1;
   }
 }
