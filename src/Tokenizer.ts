@@ -2,15 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { KEYWORDS, LexicalElements, SYMBOLS } from './grammar';
 
-type Token = {
+export type Token = {
   type: LexicalElements;
   value: string;
 };
 
 export default class Tokenizer {
   private tokens: Token[] = [];
-  public counter: number = 0;
-  public currentToken: Token;
+  private counter: number = 0;
+  private currentToken: Token;
 
   constructor(filename: string) {
     const file = this.readFile(filename);

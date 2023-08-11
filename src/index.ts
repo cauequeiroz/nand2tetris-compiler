@@ -3,10 +3,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import Tokenizer from "./Tokenizer";
+import CompileEngine from './CompileEngine';
+import XMLWriter from './XMLWriter';
 
 class Compiler {
-  private tokenizer!: Tokenizer;
-
   constructor() {
     const inputPath = process.argv[2] || './examples/ExpressionLessSquare/Main.jack';
 
@@ -28,13 +28,11 @@ class Compiler {
   }
 
   private compileFile(filename: string) {
-    this.tokenizer = new Tokenizer(filename);
+    const tokenizer = new Tokenizer(filename);
+    const xmlWriter = new XMLWriter(filename);
+    const compileEngine = new CompileEngine(tokenizer, xmlWriter);
 
-    while (this.tokenizer.hasMoreTokens()) {
-      const token = this.tokenizer.getCurrentToken();
-      console.log(token);
-      this.tokenizer.advance();
-    }
+    compileEngine.start();
   }
 }
 
