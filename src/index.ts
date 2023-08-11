@@ -8,7 +8,7 @@ class Compiler {
   private tokenizer!: Tokenizer;
 
   constructor() {
-    const inputPath = process.argv[2] || './examples/ArrayTest';
+    const inputPath = process.argv[2] || './examples/ExpressionLessSquare/Main.jack';
 
     if (inputPath.includes('.jack')) {
       this.compileFile(inputPath);
@@ -29,6 +29,12 @@ class Compiler {
 
   private compileFile(filename: string) {
     this.tokenizer = new Tokenizer(filename);
+
+    while (this.tokenizer.hasMoreTokens()) {
+      const token = this.tokenizer.getCurrentToken();
+      console.log(token);
+      this.tokenizer.advance();
+    }
   }
 }
 

@@ -9,14 +9,34 @@ type Token = {
 
 export default class Tokenizer {
   private tokens: Token[] = [];
+  public counter: number = 0;
+  public currentToken: Token;
 
   constructor(filename: string) {
     const file = this.readFile(filename);
     const words = this.getWordsFromFile(file);
 
     this.tokens = this.getTokensFromWords(words);
-    
-    this.writeTokensOutputFile(filename);
+    this.currentToken = this.tokens[this.counter];
+
+    // this.writeTokensOutputFile(filename);
+  }
+
+  public hasMoreTokens(): boolean {
+    return !!this.currentToken;
+  }
+
+  public getCurrentToken(): Token {
+    return this.currentToken;
+  }
+
+  public peekNextToken(): Token {
+    return this.tokens[this.counter + 1];
+  }
+
+  public advance(): void {
+    this.counter += 1;
+    this.currentToken = this.tokens[this.counter];
   }
 
   private readFile(filename: string): string {
