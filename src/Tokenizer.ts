@@ -9,7 +9,7 @@ export type Token = {
 
 export default class Tokenizer {
   private tokens: Token[] = [];
-  private counter: number = 0;
+  public counter: number = 0;
   private currentToken: Token;
 
   constructor(filename: string) {
