@@ -8,7 +8,7 @@ export default class XMLWriter {
 
   constructor (filename: string) {
     this.outputFile = fs.createWriteStream(
-      path.resolve(process.cwd(), filename.replace('.jack', '_New.xml')),
+      path.resolve(process.cwd(), filename),
       { flags: 'w' }
     ); 
   }

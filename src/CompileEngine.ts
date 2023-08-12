@@ -6,9 +6,11 @@ export default class CompileEngine {
   private tokenizer: Tokenizer;
   private xmlWriter: XMLWriter;
 
-  constructor(tokenizer: Tokenizer, xmlWriter: XMLWriter) {
+  constructor(tokenizer: Tokenizer) {
     this.tokenizer = tokenizer;
-    this.xmlWriter = xmlWriter;
+    this.xmlWriter = new XMLWriter(
+      this.tokenizer.filename.replace('.jack', '_New.xml')
+    );
   }
 
   public start(): void {

@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import Tokenizer from "./Tokenizer";
 import CompileEngine from './CompileEngine';
-import XMLWriter from './XMLWriter';
 
 class Compiler {
   constructor() {
@@ -29,9 +28,9 @@ class Compiler {
 
   private compileFile(filename: string) {
     const tokenizer = new Tokenizer(filename);
-    const xmlWriter = new XMLWriter(filename);
-    const compileEngine = new CompileEngine(tokenizer, xmlWriter);
-
+    const compileEngine = new CompileEngine(tokenizer);
+    
+    tokenizer.writeTokensOnXML();
     compileEngine.start();
   }
 }

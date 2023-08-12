@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { KEYWORDS, LexicalElements, SYMBOLS } from './grammar';
+import XMLWriter from './XMLWriter';
 
 export type Token = {
   type: LexicalElements;
@@ -8,18 +9,18 @@ export type Token = {
 };
 
 export default class Tokenizer {
-  private tokens: Token[] = [];
+  public filename: string;
   public counter: number = 0;
+  private tokens: Token[] = [];
   private currentToken: Token;
 
   constructor(filename: string) {
-    const file = this.readFile(filename);
+    this.filename = filename;
+    const file = this.readFile();
     const words = this.getWordsFromFile(file);
 
     this.tokens = this.getTokensFromWords(words);
     this.currentToken = this.tokens[this.counter];
-
-    // this.writeTokensOutputFile(filename);
   }
 
   public hasMoreTokens(): boolean {
@@ -39,8 +40,20 @@ export default class Tokenizer {
     this.currentToken = this.tokens[this.counter];
   }
 
-  private readFile(filename: string): string {
-    const rawFile = fs.readFileSync(path.resolve(process.cwd(), filename), {
+  public writeTokensOnXML(): void {
+    const xmlWriter = new XMLWriter(this.filename.replace('.jack', 'T_New.xml'));
+
+    xmlWriter.print('<tokens>');
+
+    this.tokens.forEach(token => {
+      xmlWriter.printToken(token);
+    });
+    
+    xmlWriter.print('</tokens>');
+  }
+
+  private readFile(): string {
+    const rawFile = fs.readFileSync(path.resolve(process.cwd(), this.filename), {
       encoding: "utf-8",
       flag: "r"
     });
@@ -141,35 +154,5 @@ export default class Tokenizer {
     });    
 
     return tokens;
-  }
-
-  private writeTokensOutputFile(filename: string): void {
-    const tagNameMap = {
-      'INT_CONST': 'integerConstant',
-      'STR_CONST': 'stringConstant'
-    } as Record<string, string>;
-
-    const tagContentMap = {
-      '<': '&lt;',
-      '>': '&gt;',
-      '&': '&amp;',
-      'constructor': 'constructor'
-    } as Record<string, string>;
-
-    const file = fs.createWriteStream(
-      path.resolve(process.cwd(), filename.replace('.jack', 'T_New.xml')),
-      { flags: 'w' }
-    ); 
-
-    file.write(`<tokens>\n`);
-    this.tokens.forEach(token => {
-      const tagName = tagNameMap[token.type] || token.type.toLowerCase();
-      const tagContent = tagContentMap[token.value] || token.value;
-
-      file.write(`<${tagName}> ${tagContent} </${tagName}>\n`);
-    })
-    file.write(`</tokens>\n`);
-
-    file.close();
   }
 }
