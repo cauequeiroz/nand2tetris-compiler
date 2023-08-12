@@ -7,7 +7,7 @@ import CompileEngine from './CompileEngine';
 
 class Compiler {
   constructor() {
-    const inputPath = process.argv[2] || './examples/ExpressionLessSquare/Main.jack';
+    const inputPath = process.argv[2] || './examples/Square/SquareGame.jack';
 
     if (inputPath.includes('.jack')) {
       this.compileFile(inputPath);

@@ -28,6 +28,23 @@ export const SYMBOLS = [
   '~'
 ];
 
+export const OP = [
+  '+',
+  '-',
+  '*',
+  '/',
+  '&',
+  '|',
+  '<',
+  '>',
+  '='
+];
+
+export const UNARY_OP = [
+  '-',
+  '~'
+]
+
 export const KEYWORDS = [
   'class',
   'constructor',
@@ -50,4 +67,11 @@ export const KEYWORDS = [
   'else',
   'while',
   'return'
+];
+
+export const KEYWORDS_CONSTANT = [
+  'true',
+  'false',
+  'null',
+  'this'
 ];

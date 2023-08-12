@@ -1,6 +1,6 @@
 import Tokenizer from "./Tokenizer";
 import XMLWriter from "./XMLWriter";
-import { LexicalElements } from "./grammar";
+import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./grammar";
 
 export default class CompileEngine {
   private tokenizer: Tokenizer;
@@ -24,7 +24,7 @@ export default class CompileEngine {
       this.xmlWriter.printToken(currentToken);
       this.tokenizer.advance();
     } else {
-      throw new Error(`[${this.tokenizer.counter}] Syntax error: ${currentToken.value} <> ${entity}`)
+      throw new Error(`[${this.tokenizer.counter + 2}] Syntax error: ${currentToken.value} <> ${entity}`)
     }
   }
 
@@ -35,7 +35,7 @@ export default class CompileEngine {
       this.xmlWriter.printToken(currentToken);
       this.tokenizer.advance();
     } else {
-      throw new Error(`Syntax error: ${currentToken.value} is not an Identifier.`);
+      throw new Error(`[${this.tokenizer.counter + 2}] Syntax error: ${currentToken.value} is not an Identifier.`);
     }
   }
 
@@ -45,6 +45,26 @@ export default class CompileEngine {
     } else {
       this.process(['int', 'char', 'boolean']);
     }
+  }
+
+  private processSubroutineCall(): void {
+    this.processIdentifier();
+
+    if (this.tokenizer.getCurrentToken().value === '.') {
+      this.process('.');
+      this.processIdentifier();      
+    }
+
+    this.process('(');
+    this.compileExpressionList();
+    this.process(')');
+  }
+
+  private processWithoutCheck(): void {
+    const currentToken = this.tokenizer.getCurrentToken();
+
+    this.xmlWriter.printToken(currentToken);
+    this.tokenizer.advance();
   }
 
   private compileClass(): void {
@@ -186,7 +206,11 @@ export default class CompileEngine {
     this.process('let');
     this.processIdentifier();
 
-    // TODO: handle array -> varName[expression]
+    if (this.tokenizer.getCurrentToken().value === '[') {
+      this.process('[');
+      this.compileExpression();
+      this.process(']');
+    }
 
     this.process('=');
     this.compileExpression();
@@ -199,16 +223,7 @@ export default class CompileEngine {
     this.xmlWriter.openTag('doStatement');
     
     this.process('do');
-    this.processIdentifier();
-
-    if (this.tokenizer.getCurrentToken().value === '.') {
-      this.process('.');
-      this.processIdentifier();      
-    }
-
-    this.process('(');
-    this.compileExpressionList();
-    this.process(')');    
+    this.processSubroutineCall();
     this.process(';');
 
     this.xmlWriter.closeTag('doStatement');
@@ -263,7 +278,7 @@ export default class CompileEngine {
   }
 
   /**
-   * TODO: Make expressions work
+   * TODO: Return number of expressions
    */
   private compileExpressionList(): void {
     this.xmlWriter.openTag('expressionList');
@@ -281,17 +296,57 @@ export default class CompileEngine {
 
   private compileExpression(): void {
     this.xmlWriter.openTag('expression');
+    
     this.compileTerm();
+    
+    while(OP.includes(this.tokenizer.getCurrentToken().value)) {
+      this.process(this.tokenizer.getCurrentToken().value);
+      this.compileTerm();
+    }
+
     this.xmlWriter.closeTag('expression');
   }
 
   private compileTerm(): void {
     this.xmlWriter.openTag('term');
     
-    if (this.tokenizer.getCurrentToken().value === 'this') {
-      this.process('this');
+    // true, false, null or this
+    if (KEYWORDS_CONSTANT.includes(this.tokenizer.getCurrentToken().value)) {
+      this.process(this.tokenizer.getCurrentToken().value);
+
+    // unary operators
+    } else if (UNARY_OP.includes(this.tokenizer.getCurrentToken().value)) {
+      this.process(this.tokenizer.getCurrentToken().value);
+      this.compileTerm();
+    
+    // string or integer
+    } else if (
+      [
+        LexicalElements.STR_CONST,
+        LexicalElements.INT_CONST
+      ].includes(this.tokenizer.getCurrentToken().type)
+    ) {
+      this.processWithoutCheck();
+
+    // (expression)
+    } else if (this.tokenizer.getCurrentToken().value === '(') {
+      this.process('(');
+      this.compileExpression();
+      this.process(')');
+
+    // subroutine call
+    } else if (['(', '.'].includes(this.tokenizer.peekNextToken().value)) {
+      this.processSubroutineCall();
+
+    // variables
     } else {
       this.processIdentifier();
+
+      if (this.tokenizer.getCurrentToken().value === '[') {
+        this.process('[');
+        this.compileExpression();
+        this.process(']');
+      }
     }
 
     this.xmlWriter.closeTag('term');
