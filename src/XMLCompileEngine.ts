@@ -2,7 +2,7 @@ import Tokenizer from "./Tokenizer";
 import XMLWriter from "./XMLWriter";
 import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./grammar";
 
-export default class CompileEngine {
+export default class XMLCompileEngine {
   private tokenizer: Tokenizer;
   private xmlWriter: XMLWriter;
 

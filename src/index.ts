@@ -3,11 +3,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import Tokenizer from "./Tokenizer";
-import CompileEngine from './CompileEngine';
+import XMLCompileEngine from './XMLCompileEngine';
+import VMCompileEngine from './VMCompileEngine';
+
+type CompilationType = '--xml' | '--vm';
 
 class Compiler {
+  private compilationType: CompilationType;
+
   constructor() {
-    const inputPath = process.argv[2] || './examples/Square/SquareGame.jack';
+    const inputPath = process.argv[2] || './examples/Square';
+    
+    this.compilationType = (process.argv[3] || '--vm') as CompilationType;
 
     if (inputPath.includes('.jack')) {
       this.compileFile(inputPath);
@@ -27,8 +34,14 @@ class Compiler {
   }
 
   private compileFile(filename: string) {
-    const tokenizer = new Tokenizer(filename);
-    const compileEngine = new CompileEngine(tokenizer);
+    let tokenizer = new Tokenizer(filename);
+    let compileEngine;
+
+    if (this.compilationType === '--vm') {
+      compileEngine = new VMCompileEngine(tokenizer);
+    } else {
+      compileEngine = new XMLCompileEngine(tokenizer);
+    }
     
     tokenizer.writeTokensOnXML();
     compileEngine.start();

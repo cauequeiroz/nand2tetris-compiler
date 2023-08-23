@@ -30,10 +30,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
 var path = __importStar(require("path"));
 var Tokenizer_1 = __importDefault(require("./Tokenizer"));
-var CompileEngine_1 = __importDefault(require("./CompileEngine"));
+var XMLCompileEngine_1 = __importDefault(require("./XMLCompileEngine"));
+var VMCompileEngine_1 = __importDefault(require("./VMCompileEngine"));
 var Compiler = /** @class */ (function () {
     function Compiler() {
-        var inputPath = process.argv[2] || './examples/Square/SquareGame.jack';
+        var inputPath = process.argv[2] || './examples/Square';
+        this.compilationType = (process.argv[3] || '--vm');
         if (inputPath.includes('.jack')) {
             this.compileFile(inputPath);
         }
@@ -52,7 +54,13 @@ var Compiler = /** @class */ (function () {
     };
     Compiler.prototype.compileFile = function (filename) {
         var tokenizer = new Tokenizer_1.default(filename);
-        var compileEngine = new CompileEngine_1.default(tokenizer);
+        var compileEngine;
+        if (this.compilationType === '--vm') {
+            compileEngine = new VMCompileEngine_1.default(tokenizer);
+        }
+        else {
+            compileEngine = new XMLCompileEngine_1.default(tokenizer);
+        }
         tokenizer.writeTokensOnXML();
         compileEngine.start();
     };
