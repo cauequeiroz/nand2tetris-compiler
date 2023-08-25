@@ -28,8 +28,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
 var path = __importStar(require("path"));
-var grammar_1 = require("./grammar");
-var XMLWriter_1 = __importDefault(require("./XMLWriter"));
+var grammar_1 = require("./utils/grammar");
+var XMLWriter_1 = __importDefault(require("./fileWriters/XMLWriter"));
 var Tokenizer = /** @class */ (function () {
     function Tokenizer(filename, output) {
         this.counter = 0;

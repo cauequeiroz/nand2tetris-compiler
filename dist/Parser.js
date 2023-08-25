@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var XMLWriter_1 = __importDefault(require("./XMLWriter"));
-var grammar_1 = require("./grammar");
+var XMLWriter_1 = __importDefault(require("./fileWriters/XMLWriter"));
+var grammar_1 = require("./utils/grammar");
 var Parser = /** @class */ (function () {
     function Parser(tokenizer, output) {
         this.tokenizer = tokenizer;

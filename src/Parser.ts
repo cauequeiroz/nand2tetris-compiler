@@ -1,6 +1,6 @@
 import Tokenizer from "./Tokenizer";
-import XMLWriter from "./XMLWriter";
-import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./grammar";
+import XMLWriter from "./fileWriters/XMLWriter";
+import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./utils/grammar";
 
 export default class Parser {
   private tokenizer: Tokenizer;

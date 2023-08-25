@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var VMWriter_1 = __importDefault(require("./VMWriter"));
+var VMWriter_1 = __importDefault(require("./fileWriters/VMWriter"));
 var CompileEngine = /** @class */ (function () {
     function CompileEngine(tokenizer) {
         this.tokenizer = tokenizer;

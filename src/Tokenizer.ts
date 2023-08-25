@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { KEYWORDS, LexicalElements, SYMBOLS } from './grammar';
-import XMLWriter from './XMLWriter';
+import { KEYWORDS, LexicalElements, SYMBOLS } from './utils/grammar';
+import XMLWriter from './fileWriters/XMLWriter';
 
 export type Token = {
   type: LexicalElements;

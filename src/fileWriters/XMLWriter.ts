@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Token } from "./Tokenizer";
+import { Token } from "../Tokenizer";
 
 export default class XMLWriter {
   private outputFile: fs.WriteStream; 

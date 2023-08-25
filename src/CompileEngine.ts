@@ -1,6 +1,6 @@
 import Tokenizer from "./Tokenizer";
-import VMWriter from "./VMWriter";
-import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./grammar";
+import VMWriter from "./fileWriters/VMWriter";
+import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./utils/grammar";
 
 export default class CompileEngine {
   private tokenizer: Tokenizer;
