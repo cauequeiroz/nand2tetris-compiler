@@ -1,27 +1,30 @@
 import Tokenizer from "./Tokenizer";
-import XMLWriter from "./XMLWriter";
+import VMWriter from "./VMWriter";
 import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./grammar";
 
-export default class VMCompileEngine {
+export default class CompileEngine {
   private tokenizer: Tokenizer;
-  private xmlWriter: XMLWriter;
+  private vmWriter: VMWriter;
 
   constructor(tokenizer: Tokenizer) {
     this.tokenizer = tokenizer;
-    this.xmlWriter = new XMLWriter(
-      this.tokenizer.filename.replace('.jack', '_New.xml')
+    this.vmWriter = new VMWriter(
+      this.tokenizer.filename.replace('.jack', '_New.vm')
     );
   }
 
   public start(): void {
-    this.compileClass();
+    this.tokenizer.reset();
+
+    console.log('Start to compile class.');
+    // this.compileClass();
   }
 
   private process(entity: string | string[]): void {
     const currentToken = this.tokenizer.getCurrentToken();
 
     if (currentToken.value === entity || entity.includes(currentToken.value)) {
-      this.xmlWriter.printToken(currentToken);
+      // this.xmlWriter.printToken(currentToken);
       this.tokenizer.advance();
     } else {
       throw new Error(`[${this.tokenizer.counter + 2}] Syntax error: ${currentToken.value} <> ${entity}`)
@@ -32,7 +35,7 @@ export default class VMCompileEngine {
     const currentToken = this.tokenizer.getCurrentToken();
 
     if (currentToken.type === LexicalElements.IDENTIFIER) {
-      this.xmlWriter.printToken(currentToken);
+      // this.xmlWriter.printToken(currentToken);
       this.tokenizer.advance();
     } else {
       throw new Error(`[${this.tokenizer.counter + 2}] Syntax error: ${currentToken.value} is not an Identifier.`);
@@ -63,12 +66,12 @@ export default class VMCompileEngine {
   private processWithoutCheck(): void {
     const currentToken = this.tokenizer.getCurrentToken();
 
-    this.xmlWriter.printToken(currentToken);
+    // this.xmlWriter.printToken(currentToken);
     this.tokenizer.advance();
   }
 
   private compileClass(): void {
-    this.xmlWriter.openTag('class');
+    // this.xmlWriter.openTag('class');
 
     this.process('class');
     this.processIdentifier();
@@ -77,12 +80,12 @@ export default class VMCompileEngine {
     this.compileSubroutineDec();
     this.process('}');
 
-    this.xmlWriter.closeTag('class');
+    // this.xmlWriter.closeTag('class');
   }
 
   private compileClassVarDec(): void {
     while(['static', 'field'].includes(this.tokenizer.getCurrentToken().value)) {
-      this.xmlWriter.openTag('classVarDec');
+      // this.xmlWriter.openTag('classVarDec');
 
       this.process(['static', 'field']);
       this.processType();
@@ -95,13 +98,13 @@ export default class VMCompileEngine {
       
       this.process(';');
 
-      this.xmlWriter.closeTag('classVarDec');
+      // this.xmlWriter.closeTag('classVarDec');
     }
   }
 
   private compileSubroutineDec(): void {
     while(['constructor', 'function', 'method'].includes(this.tokenizer.getCurrentToken().value)) {
-      this.xmlWriter.openTag('subroutineDec');
+      // this.xmlWriter.openTag('subroutineDec');
 
       this.process(['constructor', 'function', 'method']);
 
@@ -117,23 +120,23 @@ export default class VMCompileEngine {
       this.process(')');
       this.compileSubroutineBody();
 
-      this.xmlWriter.closeTag('subroutineDec');
+      // this.xmlWriter.closeTag('subroutineDec');
     }
   }
 
   private compileSubroutineBody(): void {
-    this.xmlWriter.openTag('subroutineBody');
+    // this.xmlWriter.openTag('subroutineBody');
 
     this.process('{');
     this.compileVarDec();
     this.compileStatements();
     this.process('}');
 
-    this.xmlWriter.closeTag('subroutineBody');
+    // this.xmlWriter.closeTag('subroutineBody');
   }
 
   private compileParameterList(): void {
-    this.xmlWriter.openTag('parameterList');
+    // this.xmlWriter.openTag('parameterList');
 
     while(this.tokenizer.getCurrentToken().value !== ')') {
       this.processType();
@@ -146,12 +149,12 @@ export default class VMCompileEngine {
       }
     }
 
-    this.xmlWriter.closeTag('parameterList');
+    // this.xmlWriter.closeTag('parameterList');
   }
 
   private compileVarDec(): void {
     while(this.tokenizer.getCurrentToken().value === 'var') {
-      this.xmlWriter.openTag('varDec');
+      // this.xmlWriter.openTag('varDec');
 
       this.process('var');
       this.processType();
@@ -164,12 +167,12 @@ export default class VMCompileEngine {
 
       this.process(';');
 
-      this.xmlWriter.closeTag('varDec');
+      // this.xmlWriter.closeTag('varDec');
     }
   }
 
   private compileStatements(): void {
-    this.xmlWriter.openTag('statements');
+    // this.xmlWriter.openTag('statements');
 
     while(
       ['let', 'if', 'while', 'do', 'return'].includes(
@@ -197,11 +200,11 @@ export default class VMCompileEngine {
         }
     }
 
-    this.xmlWriter.closeTag('statements');
+    // this.xmlWriter.closeTag('statements');
   }
 
   private compileLetStatement(): void {
-    this.xmlWriter.openTag('letStatement');
+    // this.xmlWriter.openTag('letStatement');
 
     this.process('let');
     this.processIdentifier();
@@ -216,21 +219,21 @@ export default class VMCompileEngine {
     this.compileExpression();
     this.process(';');
 
-    this.xmlWriter.closeTag('letStatement');
+    // this.xmlWriter.closeTag('letStatement');
   }
 
   private compileDoStatement(): void {
-    this.xmlWriter.openTag('doStatement');
+    // this.xmlWriter.openTag('doStatement');
     
     this.process('do');
     this.processSubroutineCall();
     this.process(';');
 
-    this.xmlWriter.closeTag('doStatement');
+    // this.xmlWriter.closeTag('doStatement');
   }
 
   private compileReturnStatement(): void {
-    this.xmlWriter.openTag('returnStatement');
+    // this.xmlWriter.openTag('returnStatement');
 
     this.process('return');
 
@@ -240,11 +243,11 @@ export default class VMCompileEngine {
 
     this.process(';');
 
-    this.xmlWriter.closeTag('returnStatement');
+    // this.xmlWriter.closeTag('returnStatement');
   }
 
   private compileIfStatement(): void {
-    this.xmlWriter.openTag('ifStatement');
+    // this.xmlWriter.openTag('ifStatement');
     this.process('if');
     this.process('(');
     this.compileExpression();
@@ -260,11 +263,11 @@ export default class VMCompileEngine {
       this.process('}');
     }
 
-    this.xmlWriter.closeTag('ifStatement');
+    // this.xmlWriter.closeTag('ifStatement');
   }
 
   private compileWhileStatement(): void {
-    this.xmlWriter.openTag('whileStatement');
+    // this.xmlWriter.openTag('whileStatement');
     
     this.process('while');
     this.process('(');
@@ -274,14 +277,14 @@ export default class VMCompileEngine {
     this.compileStatements();
     this.process('}');
 
-    this.xmlWriter.closeTag('whileStatement');
+    // this.xmlWriter.closeTag('whileStatement');
   }
 
   /**
    * TODO: Return number of expressions
    */
   private compileExpressionList(): void {
-    this.xmlWriter.openTag('expressionList');
+    // this.xmlWriter.openTag('expressionList');
     if (this.tokenizer.getCurrentToken().value !== ')') {
       this.compileExpression();
     }
@@ -291,11 +294,11 @@ export default class VMCompileEngine {
       this.compileExpression();
     }
 
-    this.xmlWriter.closeTag('expressionList');
+    // this.xmlWriter.closeTag('expressionList');
   }
 
   private compileExpression(): void {
-    this.xmlWriter.openTag('expression');
+    // this.xmlWriter.openTag('expression');
     
     this.compileTerm();
     
@@ -304,11 +307,11 @@ export default class VMCompileEngine {
       this.compileTerm();
     }
 
-    this.xmlWriter.closeTag('expression');
+    // this.xmlWriter.closeTag('expression');
   }
 
   private compileTerm(): void {
-    this.xmlWriter.openTag('term');
+    // this.xmlWriter.openTag('term');
     
     // true, false, null or this
     if (KEYWORDS_CONSTANT.includes(this.tokenizer.getCurrentToken().value)) {
@@ -349,6 +352,6 @@ export default class VMCompileEngine {
       }
     }
 
-    this.xmlWriter.closeTag('term');
+    // this.xmlWriter.closeTag('term');
   }
 }

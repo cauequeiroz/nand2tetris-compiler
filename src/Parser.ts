@@ -2,15 +2,28 @@ import Tokenizer from "./Tokenizer";
 import XMLWriter from "./XMLWriter";
 import { KEYWORDS_CONSTANT, LexicalElements, OP, UNARY_OP } from "./grammar";
 
-export default class XMLCompileEngine {
+export default class Parser {
   private tokenizer: Tokenizer;
-  private xmlWriter: XMLWriter;
+  private xmlWriter: XMLWriter | {
+    openTag: () => void;
+    closeTag: () => void;
+    printToken: () => void;
+  };
 
-  constructor(tokenizer: Tokenizer) {
+  constructor(tokenizer: Tokenizer, output: boolean) {
     this.tokenizer = tokenizer;
-    this.xmlWriter = new XMLWriter(
-      this.tokenizer.filename.replace('.jack', '_New.xml')
-    );
+
+    if (output) {
+      this.xmlWriter = new XMLWriter(
+        this.tokenizer.filename.replace('.jack', '.parsetree.xml')  
+      );
+    } else {
+      this.xmlWriter = {
+        openTag() {},
+        closeTag() {},
+        printToken() {}
+      }
+    }
   }
 
   public start(): void {

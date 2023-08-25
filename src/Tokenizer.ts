@@ -14,13 +14,17 @@ export default class Tokenizer {
   private tokens: Token[] = [];
   private currentToken: Token;
 
-  constructor(filename: string) {
+  constructor(filename: string, output: boolean) {
     this.filename = filename;
     const file = this.readFile();
     const words = this.getWordsFromFile(file);
 
     this.tokens = this.getTokensFromWords(words);
     this.currentToken = this.tokens[this.counter];
+
+    if (output) {
+      this.writeTokensOnXML();
+    }
   }
 
   public hasMoreTokens(): boolean {
@@ -40,8 +44,13 @@ export default class Tokenizer {
     this.currentToken = this.tokens[this.counter];
   }
 
-  public writeTokensOnXML(): void {
-    const xmlWriter = new XMLWriter(this.filename.replace('.jack', 'T_New.xml'));
+  public reset(): void {
+    this.counter = 0;
+    this.currentToken = this.tokens[this.counter];
+  }
+
+  private writeTokensOnXML(): void {
+    const xmlWriter = new XMLWriter(this.filename.replace('.jack', '.tokens.xml'));
 
     xmlWriter.print('<tokens>');
 

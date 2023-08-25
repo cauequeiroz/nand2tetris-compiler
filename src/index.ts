@@ -3,18 +3,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import Tokenizer from "./Tokenizer";
-import XMLCompileEngine from './XMLCompileEngine';
-import VMCompileEngine from './VMCompileEngine';
-
-type CompilationType = '--xml' | '--vm';
+import SyntaxAnalyzer from './SyntaxAnalyzer';
+import CompileEngine from './CompileEngine';
 
 class Compiler {
-  private compilationType: CompilationType;
+  private outputTokens: boolean;
+  private outputParseTree: boolean;
 
   constructor() {
-    const inputPath = process.argv[2] || './examples/Square';
+    const inputPath = process.argv[2] || './examples/vm/Square/SquareGame.jack';
     
-    this.compilationType = (process.argv[3] || '--vm') as CompilationType;
+    this.outputTokens = process.argv.includes('--token');
+    this.outputParseTree = process.argv.includes('--parse-tree');
 
     if (inputPath.includes('.jack')) {
       this.compileFile(inputPath);
@@ -34,16 +34,11 @@ class Compiler {
   }
 
   private compileFile(filename: string) {
-    let tokenizer = new Tokenizer(filename);
-    let compileEngine;
+    let tokenizer = new Tokenizer(filename, this.outputTokens);
+    let syntaxAnalyzer = new SyntaxAnalyzer(tokenizer, this.outputParseTree);
+    let compileEngine = new CompileEngine(tokenizer);
 
-    if (this.compilationType === '--vm') {
-      compileEngine = new VMCompileEngine(tokenizer);
-    } else {
-      compileEngine = new XMLCompileEngine(tokenizer);
-    }
-    
-    tokenizer.writeTokensOnXML();
+    syntaxAnalyzer.analyze();
     compileEngine.start();
   }
 }

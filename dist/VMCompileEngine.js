@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var XMLWriter_1 = __importDefault(require("./XMLWriter"));
+var VMWriter_1 = __importDefault(require("./VMWriter"));
 var grammar_1 = require("./grammar");
 var VMCompileEngine = /** @class */ (function () {
     function VMCompileEngine(tokenizer) {
         this.tokenizer = tokenizer;
-        this.xmlWriter = new XMLWriter_1.default(this.tokenizer.filename.replace('.jack', '_New.xml'));
+        this.vmWriter = new VMWriter_1.default(this.tokenizer.filename.replace('.jack', '_New.vm'));
     }
     VMCompileEngine.prototype.start = function () {
         this.compileClass();
@@ -16,7 +16,7 @@ var VMCompileEngine = /** @class */ (function () {
     VMCompileEngine.prototype.process = function (entity) {
         var currentToken = this.tokenizer.getCurrentToken();
         if (currentToken.value === entity || entity.includes(currentToken.value)) {
-            this.xmlWriter.printToken(currentToken);
+            // this.xmlWriter.printToken(currentToken);
             this.tokenizer.advance();
         }
         else {
@@ -26,7 +26,7 @@ var VMCompileEngine = /** @class */ (function () {
     VMCompileEngine.prototype.processIdentifier = function () {
         var currentToken = this.tokenizer.getCurrentToken();
         if (currentToken.type === grammar_1.LexicalElements.IDENTIFIER) {
-            this.xmlWriter.printToken(currentToken);
+            // this.xmlWriter.printToken(currentToken);
             this.tokenizer.advance();
         }
         else {
@@ -53,22 +53,22 @@ var VMCompileEngine = /** @class */ (function () {
     };
     VMCompileEngine.prototype.processWithoutCheck = function () {
         var currentToken = this.tokenizer.getCurrentToken();
-        this.xmlWriter.printToken(currentToken);
+        // this.xmlWriter.printToken(currentToken);
         this.tokenizer.advance();
     };
     VMCompileEngine.prototype.compileClass = function () {
-        this.xmlWriter.openTag('class');
+        // this.xmlWriter.openTag('class');
         this.process('class');
         this.processIdentifier();
         this.process('{');
         this.compileClassVarDec();
         this.compileSubroutineDec();
         this.process('}');
-        this.xmlWriter.closeTag('class');
+        // this.xmlWriter.closeTag('class');
     };
     VMCompileEngine.prototype.compileClassVarDec = function () {
         while (['static', 'field'].includes(this.tokenizer.getCurrentToken().value)) {
-            this.xmlWriter.openTag('classVarDec');
+            // this.xmlWriter.openTag('classVarDec');
             this.process(['static', 'field']);
             this.processType();
             this.processIdentifier();
@@ -77,12 +77,12 @@ var VMCompileEngine = /** @class */ (function () {
                 this.processIdentifier();
             }
             this.process(';');
-            this.xmlWriter.closeTag('classVarDec');
+            // this.xmlWriter.closeTag('classVarDec');
         }
     };
     VMCompileEngine.prototype.compileSubroutineDec = function () {
         while (['constructor', 'function', 'method'].includes(this.tokenizer.getCurrentToken().value)) {
-            this.xmlWriter.openTag('subroutineDec');
+            // this.xmlWriter.openTag('subroutineDec');
             this.process(['constructor', 'function', 'method']);
             if (this.tokenizer.getCurrentToken().value === 'void') {
                 this.process('void');
@@ -95,19 +95,19 @@ var VMCompileEngine = /** @class */ (function () {
             this.compileParameterList();
             this.process(')');
             this.compileSubroutineBody();
-            this.xmlWriter.closeTag('subroutineDec');
+            // this.xmlWriter.closeTag('subroutineDec');
         }
     };
     VMCompileEngine.prototype.compileSubroutineBody = function () {
-        this.xmlWriter.openTag('subroutineBody');
+        // this.xmlWriter.openTag('subroutineBody');
         this.process('{');
         this.compileVarDec();
         this.compileStatements();
         this.process('}');
-        this.xmlWriter.closeTag('subroutineBody');
+        // this.xmlWriter.closeTag('subroutineBody');
     };
     VMCompileEngine.prototype.compileParameterList = function () {
-        this.xmlWriter.openTag('parameterList');
+        // this.xmlWriter.openTag('parameterList');
         while (this.tokenizer.getCurrentToken().value !== ')') {
             this.processType();
             this.processIdentifier();
@@ -117,11 +117,11 @@ var VMCompileEngine = /** @class */ (function () {
                 this.processIdentifier();
             }
         }
-        this.xmlWriter.closeTag('parameterList');
+        // this.xmlWriter.closeTag('parameterList');
     };
     VMCompileEngine.prototype.compileVarDec = function () {
         while (this.tokenizer.getCurrentToken().value === 'var') {
-            this.xmlWriter.openTag('varDec');
+            // this.xmlWriter.openTag('varDec');
             this.process('var');
             this.processType();
             this.processIdentifier();
@@ -130,11 +130,11 @@ var VMCompileEngine = /** @class */ (function () {
                 this.processIdentifier();
             }
             this.process(';');
-            this.xmlWriter.closeTag('varDec');
+            // this.xmlWriter.closeTag('varDec');
         }
     };
     VMCompileEngine.prototype.compileStatements = function () {
-        this.xmlWriter.openTag('statements');
+        // this.xmlWriter.openTag('statements');
         while (['let', 'if', 'while', 'do', 'return'].includes(this.tokenizer.getCurrentToken().value)) {
             switch (this.tokenizer.getCurrentToken().value) {
                 case 'let':
@@ -156,10 +156,10 @@ var VMCompileEngine = /** @class */ (function () {
                     this.tokenizer.advance();
             }
         }
-        this.xmlWriter.closeTag('statements');
+        // this.xmlWriter.closeTag('statements');
     };
     VMCompileEngine.prototype.compileLetStatement = function () {
-        this.xmlWriter.openTag('letStatement');
+        // this.xmlWriter.openTag('letStatement');
         this.process('let');
         this.processIdentifier();
         if (this.tokenizer.getCurrentToken().value === '[') {
@@ -170,26 +170,26 @@ var VMCompileEngine = /** @class */ (function () {
         this.process('=');
         this.compileExpression();
         this.process(';');
-        this.xmlWriter.closeTag('letStatement');
+        // this.xmlWriter.closeTag('letStatement');
     };
     VMCompileEngine.prototype.compileDoStatement = function () {
-        this.xmlWriter.openTag('doStatement');
+        // this.xmlWriter.openTag('doStatement');
         this.process('do');
         this.processSubroutineCall();
         this.process(';');
-        this.xmlWriter.closeTag('doStatement');
+        // this.xmlWriter.closeTag('doStatement');
     };
     VMCompileEngine.prototype.compileReturnStatement = function () {
-        this.xmlWriter.openTag('returnStatement');
+        // this.xmlWriter.openTag('returnStatement');
         this.process('return');
         if (this.tokenizer.getCurrentToken().value !== ';') {
             this.compileExpression();
         }
         this.process(';');
-        this.xmlWriter.closeTag('returnStatement');
+        // this.xmlWriter.closeTag('returnStatement');
     };
     VMCompileEngine.prototype.compileIfStatement = function () {
-        this.xmlWriter.openTag('ifStatement');
+        // this.xmlWriter.openTag('ifStatement');
         this.process('if');
         this.process('(');
         this.compileExpression();
@@ -203,10 +203,10 @@ var VMCompileEngine = /** @class */ (function () {
             this.compileStatements();
             this.process('}');
         }
-        this.xmlWriter.closeTag('ifStatement');
+        // this.xmlWriter.closeTag('ifStatement');
     };
     VMCompileEngine.prototype.compileWhileStatement = function () {
-        this.xmlWriter.openTag('whileStatement');
+        // this.xmlWriter.openTag('whileStatement');
         this.process('while');
         this.process('(');
         this.compileExpression();
@@ -214,13 +214,13 @@ var VMCompileEngine = /** @class */ (function () {
         this.process('{');
         this.compileStatements();
         this.process('}');
-        this.xmlWriter.closeTag('whileStatement');
+        // this.xmlWriter.closeTag('whileStatement');
     };
     /**
      * TODO: Return number of expressions
      */
     VMCompileEngine.prototype.compileExpressionList = function () {
-        this.xmlWriter.openTag('expressionList');
+        // this.xmlWriter.openTag('expressionList');
         if (this.tokenizer.getCurrentToken().value !== ')') {
             this.compileExpression();
         }
@@ -228,19 +228,19 @@ var VMCompileEngine = /** @class */ (function () {
             this.process(',');
             this.compileExpression();
         }
-        this.xmlWriter.closeTag('expressionList');
+        // this.xmlWriter.closeTag('expressionList');
     };
     VMCompileEngine.prototype.compileExpression = function () {
-        this.xmlWriter.openTag('expression');
+        // this.xmlWriter.openTag('expression');
         this.compileTerm();
         while (grammar_1.OP.includes(this.tokenizer.getCurrentToken().value)) {
             this.process(this.tokenizer.getCurrentToken().value);
             this.compileTerm();
         }
-        this.xmlWriter.closeTag('expression');
+        // this.xmlWriter.closeTag('expression');
     };
     VMCompileEngine.prototype.compileTerm = function () {
-        this.xmlWriter.openTag('term');
+        // this.xmlWriter.openTag('term');
         // true, false, null or this
         if (grammar_1.KEYWORDS_CONSTANT.includes(this.tokenizer.getCurrentToken().value)) {
             this.process(this.tokenizer.getCurrentToken().value);
@@ -276,7 +276,7 @@ var VMCompileEngine = /** @class */ (function () {
                 this.process(']');
             }
         }
-        this.xmlWriter.closeTag('term');
+        // this.xmlWriter.closeTag('term');
     };
     return VMCompileEngine;
 }());

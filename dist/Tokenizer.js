@@ -31,7 +31,7 @@ var path = __importStar(require("path"));
 var grammar_1 = require("./grammar");
 var XMLWriter_1 = __importDefault(require("./XMLWriter"));
 var Tokenizer = /** @class */ (function () {
-    function Tokenizer(filename) {
+    function Tokenizer(filename, output) {
         this.counter = 0;
         this.tokens = [];
         this.filename = filename;
@@ -39,6 +39,9 @@ var Tokenizer = /** @class */ (function () {
         var words = this.getWordsFromFile(file);
         this.tokens = this.getTokensFromWords(words);
         this.currentToken = this.tokens[this.counter];
+        if (output) {
+            this.writeTokensOnXML();
+        }
     }
     Tokenizer.prototype.hasMoreTokens = function () {
         return !!this.currentToken;
@@ -53,8 +56,12 @@ var Tokenizer = /** @class */ (function () {
         this.counter += 1;
         this.currentToken = this.tokens[this.counter];
     };
+    Tokenizer.prototype.reset = function () {
+        this.counter = 0;
+        this.currentToken = this.tokens[this.counter];
+    };
     Tokenizer.prototype.writeTokensOnXML = function () {
-        var xmlWriter = new XMLWriter_1.default(this.filename.replace('.jack', 'T_New.xml'));
+        var xmlWriter = new XMLWriter_1.default(this.filename.replace('.jack', '.tokens.xml'));
         xmlWriter.print('<tokens>');
         this.tokens.forEach(function (token) {
             xmlWriter.printToken(token);
