@@ -12,6 +12,6 @@ export default class VMWriter {
   }
 
   public print(text: string): void {
-    this.outputFile.write(text);
+    this.outputFile.write(`${text}\n`);
   }
 }
