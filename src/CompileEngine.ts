@@ -12,7 +12,7 @@ export default class CompileEngine {
     this.tokenizer = tokenizer;
     this.symbolTable = new SymbolTable();
     this.vmWriter = new VMWriter(
-      this.tokenizer.filename.replace('.jack', '_New.vm')
+      this.tokenizer.filename.replace('.jack', '.new.vm')
     );
   }
 
@@ -100,6 +100,7 @@ export default class CompileEngine {
       this.compileParameterList();
       this.nextToken(); // skip ')'
       this.compileSubroutineBody();
+      this.symbolTable.reset();
     }
   }
 
@@ -109,9 +110,10 @@ export default class CompileEngine {
 
     const subroutineName = this.symbolTable.getSubroutineName();
     const numberOfLocals = this.symbolTable.getNumberOfLocals();
-    this.vmWriter.print(`function ${subroutineName} ${numberOfLocals}`);
+    this.print(`function ${subroutineName} ${numberOfLocals}`);
 
     this.compileStatements();
+    this.nextToken(); // skip '}'
   }
 
   private compileParameterList(): void {
@@ -224,11 +226,57 @@ export default class CompileEngine {
   }
 
   private compileIfStatement(): void {
-    
+    let index = this.symbolTable.getIfLabelIndex();
+    let labelIfTrue = `IF_TRUE${index}`;
+    let labelIfFalse = `IF_FALSE${index}`;
+    let labelIfEnd = `IF_END${index}`;
+
+    this.nextToken(); // skip 'if'
+    this.nextToken(); // skip '('
+    this.compileExpression();
+
+    this.print(`if-goto ${labelIfTrue}`);
+    this.print(`goto ${labelIfFalse}`);
+    this.print(`label ${labelIfTrue}`);
+
+    this.nextToken(); // skip ')'
+    this.nextToken(); // skip '{'
+    this.compileStatements();
+    this.nextToken(); // skip '}'
+
+    if (this.tokenValue() === 'else') {
+      this.print(`goto ${labelIfEnd}`);
+    }
+
+    this.print(`label ${labelIfFalse}`);
+
+    if (this.tokenValue() === 'else') {
+      this.nextToken(); // skip 'else'
+      this.nextToken(); // skip '{'
+      this.compileStatements();
+      this.nextToken(); // skip '}'
+      this.print(`label ${labelIfEnd}`);
+    }
   }
 
   private compileWhileStatement(): void {
-    
+    let index = this.symbolTable.getWhileLabelIndex();
+    let labelWhileExp = `WHILE_EXP${index}`;
+    let labelWhileEnd = `WHILE_END${index}`;
+
+    this.print(`label ${labelWhileExp}`);
+    this.nextToken(); // skip 'while'
+    this.nextToken(); // skip '('
+    this.compileExpression();
+    this.nextToken(); // skip ')'
+    this.print('not')
+    this.print(`if-goto ${labelWhileEnd}`);
+    this.nextToken(); // skip '{'
+    this.compileStatements();
+    this.nextToken(); // skip '}'
+
+    this.print(`goto ${labelWhileExp}`);
+    this.print(`label ${labelWhileEnd}`);
   }
 
   private compileExpressionList(): number {
@@ -262,8 +310,24 @@ export default class CompileEngine {
   private convertOpToCommand(operation: string) {
     const operationMap = {
       '*': 'call Math.multiply 2',
+      '/': 'call Math.divide 2',
       '+': 'add',
-      '-': 'neg'
+      '-': 'sub',
+      '&': 'and',
+      '|': 'or',
+      '<': 'lt',
+      '>': 'gt',
+      '=' : 'eq',
+      '~': 'not'
+    } as Record<string, string>;
+
+    return operationMap[operation];
+  }
+
+  private convertUnaryOpToCommand(operation: string) {
+    const operationMap = {
+      '-': 'neg',
+      '~': 'not'
     } as Record<string, string>;
 
     return operationMap[operation];
@@ -272,12 +336,33 @@ export default class CompileEngine {
   private compileTerm(): void {
     let checked = false;
 
+    // true, false, null or this
+    if (KEYWORDS_CONSTANT.includes(this.tokenValue())) {
+      if (this.tokenValue() === 'true') {
+        this.print(`push constant 0`);
+        this.print(`not`);
+      } else if (this.tokenValue() === 'this') {
+        this.print('push argument 0');
+      } else {
+        this.print(`push constant 0`);
+      }
+      this.nextToken();
+      checked = true;
+
     // integer
-    if (this.tokenType() === LexicalElements.INT_CONST) {
+    } else if (this.tokenType() === LexicalElements.INT_CONST) {
       this.print(`push constant ${this.tokenValue()}`);
       this.nextToken();
       checked = true;
-    
+
+    // unary operators
+    } else if (UNARY_OP.includes(this.tokenValue())) {
+      let operation = this.convertUnaryOpToCommand(this.tokenValue());
+      this.nextToken();
+      this.compileTerm();
+      this.print(operation);
+      checked = true;
+
     // (expression)
     } else if (this.tokenValue() === '(') {
       this.nextToken(); // skip '('
@@ -308,7 +393,7 @@ export default class CompileEngine {
     }
 
     if (!checked) {
-      console.log(this.tokenValue(), this.tokenType())
+      console.log(this.tokenizer.counter, this.tokenValue(), this.tokenType())
     }
   }
 }

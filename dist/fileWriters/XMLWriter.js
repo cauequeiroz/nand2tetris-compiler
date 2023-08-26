@@ -65,3 +65,4 @@ var XMLWriter = /** @class */ (function () {
     return XMLWriter;
 }());
 exports.default = XMLWriter;
+//# sourceMappingURL=XMLWriter.js.map

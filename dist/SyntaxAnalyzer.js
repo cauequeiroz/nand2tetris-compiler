@@ -14,3 +14,4 @@ var SyntaxAnalyzer = /** @class */ (function () {
     return SyntaxAnalyzer;
 }());
 exports.default = SyntaxAnalyzer;
+//# sourceMappingURL=SyntaxAnalyzer.js.map

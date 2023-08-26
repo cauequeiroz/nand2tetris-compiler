@@ -1,0 +1,1 @@
+{"version":3,"file":"SyntaxAnalyzer.js","sourceRoot":"","sources":["../src/SyntaxAnalyzer.ts"],"names":[],"mappings":";;;;;AAAA,oDAA8B;AAG9B;IAGE,wBAAY,SAAoB,EAAE,MAAe;QAC/C,IAAI,CAAC,MAAM,GAAG,IAAI,gBAAM,CAAC,SAAS,EAAE,MAAM,CAAC,CAAC;IAC9C,CAAC;IAEM,gCAAO,GAAd;QACE,IAAI,CAAC,MAAM,CAAC,KAAK,EAAE,CAAC;IACtB,CAAC;IACH,qBAAC;AAAD,CAAC,AAVD,IAUC"}

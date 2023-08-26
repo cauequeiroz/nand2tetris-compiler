@@ -34,7 +34,7 @@ var SyntaxAnalyzer_1 = __importDefault(require("./SyntaxAnalyzer"));
 var CompileEngine_1 = __importDefault(require("./CompileEngine"));
 var Compiler = /** @class */ (function () {
     function Compiler() {
-        var inputPath = process.argv[2] || './examples/vm/Square/SquareGame.jack';
+        var inputPath = process.argv[2] || './examples/vm/ConvertToBin/Main.jack';
         this.outputTokens = process.argv.includes('--token');
         this.outputParseTree = process.argv.includes('--parse-tree');
         if (inputPath.includes('.jack')) {
@@ -63,3 +63,4 @@ var Compiler = /** @class */ (function () {
     return Compiler;
 }());
 new Compiler();
+//# sourceMappingURL=index.js.map

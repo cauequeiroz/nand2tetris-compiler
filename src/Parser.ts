@@ -290,9 +290,6 @@ export default class Parser {
     this.xmlWriter.closeTag('whileStatement');
   }
 
-  /**
-   * TODO: Return number of expressions
-   */
   private compileExpressionList(): void {
     this.xmlWriter.openTag('expressionList');
     if (this.tokenizer.getCurrentToken().value !== ')') {

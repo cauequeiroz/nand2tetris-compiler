@@ -10,18 +10,23 @@ export default class SymbolTable {
   private classLevelTable: Table;
   private subroutineTable: Table;
   private kindCounter: Record<string, number>;
+  private labelCounter: Record<string, number>;
 
   constructor() {
     this.classLevelTable = {};
     this.subroutineTable = {};
     this.kindCounter = {};
+    this.labelCounter = {
+      while: 0,
+      if: 0
+    };
   }
 
   public addToClassLevel(name: string, type: string, kind: string): void {
     this.classLevelTable[name] = {
       type,
       kind,
-      index: this.getNextIndex(kind)
+      index: this.getNextKindIndex(kind)
     }
   }
 
@@ -29,7 +34,7 @@ export default class SymbolTable {
     this.subroutineTable[name] = {
       type,
       kind,
-      index: this.getNextIndex(kind)
+      index: this.getNextKindIndex(kind)
     }
   }
 
@@ -71,7 +76,29 @@ export default class SymbolTable {
     return `${register.kind} ${register.index}`;
   }
 
-  private getNextIndex(kind: string): number {
+  public reset(): void {
+    this.subroutineTable = {};
+    this.kindCounter.local = 0;
+    this.kindCounter.argument = 0;
+    this.labelCounter = {
+      while: 0,
+      if: 0
+    };
+  }
+
+  public getWhileLabelIndex(): number {
+    const index = this.labelCounter.while;
+    this.labelCounter.while += 1;
+    return index;
+  }
+
+  public getIfLabelIndex(): number {
+    const index = this.labelCounter.if;
+    this.labelCounter.if += 1;
+    return index;
+  }
+
+  private getNextKindIndex(kind: string): number {
     if (!this.kindCounter[kind]) {
       this.kindCounter[kind] = 0;
     }

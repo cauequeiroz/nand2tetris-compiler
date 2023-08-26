@@ -30,8 +30,9 @@ var VMWriter = /** @class */ (function () {
         this.outputFile = fs.createWriteStream(path.resolve(process.cwd(), filename), { flags: 'w' });
     }
     VMWriter.prototype.print = function (text) {
-        this.outputFile.write(text);
+        this.outputFile.write("".concat(text, "\n"));
     };
     return VMWriter;
 }());
 exports.default = VMWriter;
+//# sourceMappingURL=VMWriter.js.map

@@ -133,3 +133,4 @@ out
 *.tst
 
 *_New.xml
+*.new.vm

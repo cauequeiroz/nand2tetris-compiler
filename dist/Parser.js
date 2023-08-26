@@ -225,9 +225,6 @@ var Parser = /** @class */ (function () {
         this.process('}');
         this.xmlWriter.closeTag('whileStatement');
     };
-    /**
-     * TODO: Return number of expressions
-     */
     Parser.prototype.compileExpressionList = function () {
         this.xmlWriter.openTag('expressionList');
         if (this.tokenizer.getCurrentToken().value !== ')') {
@@ -290,3 +287,4 @@ var Parser = /** @class */ (function () {
     return Parser;
 }());
 exports.default = Parser;
+//# sourceMappingURL=Parser.js.map
