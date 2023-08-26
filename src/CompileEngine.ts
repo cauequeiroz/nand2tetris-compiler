@@ -191,7 +191,16 @@ export default class CompileEngine {
   }
 
   private compileLetStatement(): void {
+    let varName;
     
+    this.nextToken(); // skip 'let'
+    varName = this.tokenValue();
+    this.nextToken();
+    this.nextToken(); // skip '='
+    this.compileExpression();
+    this.nextToken(); // skip ';'
+
+    this.print(`pop ${this.symbolTable.getVariable(varName)}`)
   }
 
   private compileDoStatement(): void {
@@ -253,23 +262,28 @@ export default class CompileEngine {
   private convertOpToCommand(operation: string) {
     const operationMap = {
       '*': 'call Math.multiply 2',
-      '+': 'add'
+      '+': 'add',
+      '-': 'neg'
     } as Record<string, string>;
 
     return operationMap[operation];
   }
 
   private compileTerm(): void {
+    let checked = false;
+
     // integer
     if (this.tokenType() === LexicalElements.INT_CONST) {
       this.print(`push constant ${this.tokenValue()}`);
       this.nextToken();
+      checked = true;
     
     // (expression)
     } else if (this.tokenValue() === '(') {
       this.nextToken(); // skip '('
       this.compileExpression();
       this.nextToken(); // skip ')'
+      checked = true;
     
     // subroutine call
     // TODO: handle foo(), handle obj on symbol table
@@ -284,6 +298,17 @@ export default class CompileEngine {
       this.nextToken(); // skip ')'
 
       this.print(`call ${objectName}.${subroutineName} ${numberOfArguments}`);
+      checked = true;
+    
+    // variables
+    } else if (this.tokenType() === LexicalElements.IDENTIFIER) {
+      this.print(`push ${this.symbolTable.getVariable(this.tokenValue())}`);
+      this.nextToken();
+      checked = true;
+    }
+
+    if (!checked) {
+      console.log(this.tokenValue(), this.tokenType())
     }
   }
 }

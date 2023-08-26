@@ -61,6 +61,16 @@ export default class SymbolTable {
     console.log('---');
   }
 
+  public getVariable(name: string): string {
+    let register = this.subroutineTable[name];
+    
+    if (!register) {
+      register = this.classLevelTable[name];
+    }
+
+    return `${register.kind} ${register.index}`;
+  }
+
   private getNextIndex(kind: string): number {
     if (!this.kindCounter[kind]) {
       this.kindCounter[kind] = 0;
