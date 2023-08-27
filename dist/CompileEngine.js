@@ -345,17 +345,19 @@ var CompileEngine = /** @class */ (function () {
         else if (this.tokenizer.peekNextToken().value === '.') {
             var objectName = this.tokenValue();
             this.nextToken();
+            var localVariable = this.symbolTable.getVariable(objectName);
+            if (localVariable) {
+                this.print("push ".concat(localVariable));
+                objectName = this.symbolTable.getVariableType(objectName);
+            }
             this.nextToken(); // skip '.'
             var subroutineName = this.tokenValue();
             this.nextToken();
             this.nextToken(); // skip '('
             var numberOfArguments = this.compileExpressionList();
             this.nextToken(); // skip ')'
-            var localVariable = this.symbolTable.getVariable(objectName);
             if (localVariable) {
-                this.print("push ".concat(localVariable));
                 numberOfArguments += 1;
-                objectName = this.symbolTable.getVariableType(objectName);
             }
             this.print("call ".concat(objectName, ".").concat(subroutineName, " ").concat(numberOfArguments));
             checked = true;

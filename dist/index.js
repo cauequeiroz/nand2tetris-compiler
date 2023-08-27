@@ -34,7 +34,7 @@ var SyntaxAnalyzer_1 = __importDefault(require("./SyntaxAnalyzer"));
 var CompileEngine_1 = __importDefault(require("./CompileEngine"));
 var Compiler = /** @class */ (function () {
     function Compiler() {
-        var inputPath = process.argv[2] || './examples/vm/Average/Main.jack';
+        var inputPath = process.argv[2] || './examples/vm/Pong/PongGame.jack';
         this.outputTokens = process.argv.includes('--token');
         this.outputParseTree = process.argv.includes('--parse-tree');
         if (inputPath.includes('.jack')) {

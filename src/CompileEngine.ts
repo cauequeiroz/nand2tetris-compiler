@@ -417,19 +417,22 @@ export default class CompileEngine {
     } else if (this.tokenizer.peekNextToken().value === '.') {
       let objectName = this.tokenValue();
       this.nextToken();
+
+      let localVariable = this.symbolTable.getVariable(objectName);
+      if (localVariable) {
+        this.print(`push ${localVariable}`);
+        objectName = this.symbolTable.getVariableType(objectName);
+      }
+
       this.nextToken(); // skip '.'
       let subroutineName = this.tokenValue();
       this.nextToken();
       this.nextToken(); // skip '('
       let numberOfArguments = this.compileExpressionList();
       this.nextToken(); // skip ')'
-
-      let localVariable = this.symbolTable.getVariable(objectName)
       
       if (localVariable) {
-        this.print(`push ${localVariable}`);
         numberOfArguments += 1;
-        objectName = this.symbolTable.getVariableType(objectName);
       }
 
       this.print(`call ${objectName}.${subroutineName} ${numberOfArguments}`);
