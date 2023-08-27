@@ -11,7 +11,7 @@ class Compiler {
   private outputParseTree: boolean;
 
   constructor() {
-    const inputPath = process.argv[2] || './examples/vm/ConvertToBin/Main.jack';
+    const inputPath = process.argv[2] || './examples/vm/Average/Main.jack';
     
     this.outputTokens = process.argv.includes('--token');
     this.outputParseTree = process.argv.includes('--parse-tree');

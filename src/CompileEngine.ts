@@ -99,18 +99,29 @@ export default class CompileEngine {
       this.nextToken(); // skip '('
       this.compileParameterList();
       this.nextToken(); // skip ')'
-      this.compileSubroutineBody();
+      this.compileSubroutineBody(subroutineCategory);
       this.symbolTable.reset();
     }
   }
 
-  private compileSubroutineBody(): void {
+  private compileSubroutineBody(category: string): void {
     this.nextToken(); // skip '{'
     this.compileVarDec();
 
     const subroutineName = this.symbolTable.getSubroutineName();
     const numberOfLocals = this.symbolTable.getNumberOfLocals();
     this.print(`function ${subroutineName} ${numberOfLocals}`);
+
+    if (category === 'constructor') {
+      this.print(`push constant ${this.symbolTable.getNumberOfFields()}`); 
+      this.print(`call Memory.alloc 1`);
+      this.print(`pop pointer 0`);
+    }
+
+    if (category === 'method') {
+      this.print(`push argument 0`);
+      this.print(`pop pointer 0`);
+    }
 
     this.compileStatements();
     this.nextToken(); // skip '}'
@@ -194,15 +205,33 @@ export default class CompileEngine {
 
   private compileLetStatement(): void {
     let varName;
+    let isArrayAccess = false;
     
     this.nextToken(); // skip 'let'
     varName = this.tokenValue();
     this.nextToken();
+
+    if (this.tokenValue() === '[') {
+      isArrayAccess = true;
+      this.nextToken(); // skip '['
+      this.compileExpression();
+      this.print(`push ${this.symbolTable.getVariable(varName)}`);
+      this.print('add')
+      this.nextToken(); // skip ']'
+    }
+
     this.nextToken(); // skip '='
     this.compileExpression();
     this.nextToken(); // skip ';'
 
-    this.print(`pop ${this.symbolTable.getVariable(varName)}`)
+    if (isArrayAccess) {
+      this.print('pop temp 0');
+      this.print('pop pointer 1');
+      this.print('push temp 0');
+      this.print('pop that 0');
+    } else {
+      this.print(`pop ${this.symbolTable.getVariable(varName)}`)
+    }
   }
 
   private compileDoStatement(): void {
@@ -342,7 +371,7 @@ export default class CompileEngine {
         this.print(`push constant 0`);
         this.print(`not`);
       } else if (this.tokenValue() === 'this') {
-        this.print('push argument 0');
+        this.print('push pointer 0');
       } else {
         this.print(`push constant 0`);
       }
@@ -354,6 +383,20 @@ export default class CompileEngine {
       this.print(`push constant ${this.tokenValue()}`);
       this.nextToken();
       checked = true;
+
+    // string
+    } else if (this.tokenType() === LexicalElements.STR_CONST) {
+      const str = this.tokenValue();
+      this.print(`push constant ${str.length}`);
+      this.print('call String.new 1');
+
+      str.split('').forEach(letter => {
+        this.print(`push constant ${letter.charCodeAt(0)}`);
+        this.print('call String.appendChar 2');
+      });
+
+      this.nextToken();
+      checked = true;    
 
     // unary operators
     } else if (UNARY_OP.includes(this.tokenValue())) {
@@ -370,8 +413,7 @@ export default class CompileEngine {
       this.nextToken(); // skip ')'
       checked = true;
     
-    // subroutine call
-    // TODO: handle foo(), handle obj on symbol table
+    // subroutine call: Object.foo(), object.foo()
     } else if (this.tokenizer.peekNextToken().value === '.') {
       let objectName = this.tokenValue();
       this.nextToken();
@@ -382,13 +424,48 @@ export default class CompileEngine {
       let numberOfArguments = this.compileExpressionList();
       this.nextToken(); // skip ')'
 
+      let localVariable = this.symbolTable.getVariable(objectName)
+      
+      if (localVariable) {
+        this.print(`push ${localVariable}`);
+        numberOfArguments += 1;
+        objectName = this.symbolTable.getVariableType(objectName);
+      }
+
       this.print(`call ${objectName}.${subroutineName} ${numberOfArguments}`);
       checked = true;
     
+    // subroutine call: foo()
+    } else if (this.tokenizer.peekNextToken().value === '(') {
+      let subroutineName = this.tokenValue();
+      this.nextToken();
+      this.nextToken(); // skip '('
+      this.print('push pointer 0')
+      let numberOfArguments = this.compileExpressionList();
+      this.nextToken(); // skip ')'
+
+      numberOfArguments += 1;
+
+      this.print(`call ${this.symbolTable.getClassName()}.${subroutineName} ${numberOfArguments}`);
+      checked = true;
+
     // variables
     } else if (this.tokenType() === LexicalElements.IDENTIFIER) {
-      this.print(`push ${this.symbolTable.getVariable(this.tokenValue())}`);
-      this.nextToken();
+      if (this.tokenizer.peekNextToken().value === '[') {
+        let arrName = this.tokenValue();
+        this.nextToken();
+        this.nextToken(); // skip '['
+        this.compileExpression();
+        this.nextToken(); // skip ']'
+        this.print(`push ${this.symbolTable.getVariable(arrName)}`)
+        this.print('add');
+        this.print('pop pointer 1');
+        this.print('push that 0');
+      } else {
+        this.print(`push ${this.symbolTable.getVariable(this.tokenValue())}`);
+        this.nextToken();
+      }
+
       checked = true;
     }
 

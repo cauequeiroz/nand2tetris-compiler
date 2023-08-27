@@ -30,11 +30,17 @@ var SymbolTable = /** @class */ (function () {
     SymbolTable.prototype.setSubroutineName = function (name) {
         this.subroutineName = name;
     };
+    SymbolTable.prototype.getClassName = function () {
+        return this.className;
+    };
     SymbolTable.prototype.getSubroutineName = function () {
         return "".concat(this.className, ".").concat(this.subroutineName);
     };
     SymbolTable.prototype.getNumberOfLocals = function () {
         return this.kindCounter['local'] || 0;
+    };
+    SymbolTable.prototype.getNumberOfFields = function () {
+        return this.kindCounter['field'] || 0;
     };
     SymbolTable.prototype.logClassLevelTable = function () {
         console.log('# Class-level Symbol Table', "[".concat(this.className, "]"));
@@ -47,11 +53,17 @@ var SymbolTable = /** @class */ (function () {
         console.log('---');
     };
     SymbolTable.prototype.getVariable = function (name) {
-        var register = this.subroutineTable[name];
+        var register = this.subroutineTable[name] || this.classLevelTable[name];
         if (!register) {
-            register = this.classLevelTable[name];
+            return "";
         }
-        return "".concat(register.kind, " ").concat(register.index);
+        var segment = register.kind === 'field' ? 'this' : register.kind;
+        var number = register.index;
+        return "".concat(segment, " ").concat(number);
+    };
+    SymbolTable.prototype.getVariableType = function (name) {
+        var _a;
+        return ((_a = this.subroutineTable[name]) === null || _a === void 0 ? void 0 : _a.type) || this.classLevelTable[name].type;
     };
     SymbolTable.prototype.reset = function () {
         this.subroutineTable = {};

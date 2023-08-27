@@ -46,12 +46,20 @@ export default class SymbolTable {
     this.subroutineName = name;
   }
 
+  public getClassName(): string {
+    return this.className;
+  }
+
   public getSubroutineName(): string {
     return `${this.className}.${this.subroutineName}`;
   }
 
   public getNumberOfLocals(): number {
     return this.kindCounter['local'] || 0;
+  }
+
+  public getNumberOfFields(): number {
+    return this.kindCounter['field'] || 0;
   }
 
   public logClassLevelTable(): void {
@@ -67,13 +75,20 @@ export default class SymbolTable {
   }
 
   public getVariable(name: string): string {
-    let register = this.subroutineTable[name];
+    let register = this.subroutineTable[name] || this.classLevelTable[name];
     
     if (!register) {
-      register = this.classLevelTable[name];
+      return "";
     }
 
-    return `${register.kind} ${register.index}`;
+    const segment = register.kind === 'field' ? 'this' : register.kind;
+    const number = register.index;
+
+    return `${segment} ${number}`;
+  }
+
+  public getVariableType(name: string): string {
+    return this.subroutineTable[name]?.type || this.classLevelTable[name].type;
   }
 
   public reset(): void {
