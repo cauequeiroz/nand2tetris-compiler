@@ -99,7 +99,7 @@ var Tokenizer = /** @class */ (function () {
                 }
                 continue;
             }
-            if (isSymbol) {
+            if (isSymbol && !isStringInProgress) {
                 if (currentWord !== "") {
                     words.push(currentWord);
                     currentWord = "";

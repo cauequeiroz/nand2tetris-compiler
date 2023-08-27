@@ -100,7 +100,7 @@ export default class Tokenizer {
         continue;
       }
 
-      if (isSymbol) {
+      if (isSymbol && !isStringInProgress) {
         if (currentWord !== "") {
           words.push(currentWord);
           currentWord = "";
