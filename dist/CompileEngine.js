@@ -38,7 +38,7 @@ var CompileEngine = /** @class */ (function () {
         this.compileClassVarDec();
         // Class subroutines
         this.compileSubroutineDec();
-        // TODO
+        this.nextToken(); // skip '}'
     };
     CompileEngine.prototype.compileClassVarDec = function () {
         var varKind;

@@ -49,7 +49,8 @@ export default class CompileEngine {
 
     // Class subroutines
     this.compileSubroutineDec();
-    // TODO
+    
+    this.nextToken(); // skip '}'
   }
 
   private compileClassVarDec(): void {
